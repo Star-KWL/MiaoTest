@@ -91,8 +91,8 @@ const antSender = ref(null); // 添加AntSender组件引用，用于重置loadin
 const modelName = ref(''); // 新增模型名称变量
 const showPicker = ref(false); // 新增弹出框显示状态变量
 const modelOtions = ref([]) // 新增选项数据,后面由后端请求后返回，而不是写死
-const selectedValues = ref(['DeepSeek-R1-Distill-Qwen-1.5B']);// 新增选择的模型值变量,默认选择通义千问-Plus
-const selectedmodelvalue = ref('deepseek-r1-distill-qwen-1.5b'); // 新增选择的模型值变量,默认选择通义千问-Plus
+const selectedValues = ref(['']);// 新增选择的模型值变量,默认选择通义千问-Plus
+const selectedmodelvalue = ref(''); // 新增选择的模型值变量,默认选择通义千问-Plus
 
 //处理用户提交的问题
 const handleuserSend = (data) => {
@@ -166,6 +166,12 @@ const getModelList = async () => {
                 text: item.modelName,
                 value: item.modelValue
             }));
+            // 自动选择第一个模型
+            if (modelOtions.value.length > 0) {
+                selectedValues.value = [modelOtions.value[0].text];
+                selectedmodelvalue.value = modelOtions.value[0].value;
+                modelName.value = modelOtions.value[0].text;
+            }
         }
     } catch (error) {
         console.error('API请求错误:', error); 

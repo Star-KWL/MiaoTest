@@ -2,6 +2,10 @@ const  chat = require('../../llm/web/chat.js')
 const AianalysisModel = require('../../models/AianalysisModel')
 const LLMsModel = require('../../models/LLMsModel')
 
+// LLM模型列表缓存
+let cachedLLMList = null;
+let lastCacheUpdate = 0;
+const CACHE_DURATION = 3600000; // 缓存有效期1小时
 
 const LLMService = {
     sendExamAIanalyse: async (message, questionId,Type) => { 
@@ -32,7 +36,24 @@ const LLMService = {
         return await chat.postUserChat(message,model)
     },
     getLLMList: async () => {
-        return await LLMsModel.find({ isPublish: 1 })
+        const now = Date.now();
+        // 检查缓存是否有效
+        if (cachedLLMList && (now - lastCacheUpdate) < CACHE_DURATION) {
+            console.log("使用缓存的LLM列表");
+            return cachedLLMList;
+        }
+        // 缓存无效，从数据库获取最新列表
+        console.log("从数据库更新LLM列表");
+        const result = await LLMsModel.find({ isPublish: 1 });
+        cachedLLMList = result;
+        lastCacheUpdate = now;
+        return result;
+    },
+    // 清除LLM缓存
+    clearLLMCache: () => {
+        cachedLLMList = null;
+        lastCacheUpdate = 0;
+        console.log("LLM列表缓存已清除");
     }
 
 }
